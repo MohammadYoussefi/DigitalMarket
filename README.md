@@ -52,9 +52,5 @@
 
   <hr>
 
-  <p>
-    📌 This project helped me better understand 
-    <b>end-to-end web development</b>: from backend logic and database design to frontend responsiveness and cloud deployment.
-  </p>
 
 </div>
