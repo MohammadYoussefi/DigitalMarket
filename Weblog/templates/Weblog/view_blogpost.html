@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="bg-gray-50 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-4xl mx-auto">
+
+    <!-- هدر مقاله -->
+    <div class="mb-12">
+      <!-- مسیر ناوبری -->
+      <nav class="flex mb-6" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+          <li class="inline-flex items-center">
+            <a href="{% url 'home:home' %}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-indigo-600">
+              <svg class="w-3 h-3 mr-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
+              </svg>
+              خانه
+            </a>
+          </li>
+          <li>
+            <div class="flex items-center">
+              <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+              </svg>
+              <a href="{% url 'weblog:view_weblog' %}" class="ml-1 text-sm font-medium text-gray-700 hover:text-indigo-600 md:ml-2">وبلاگ</a>
+            </div>
+          </li>
+          <li aria-current="page">
+            <div class="flex items-center">
+              <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+              </svg>
+              <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">{{ blogpost.title|truncatechars:30 }}</span>
+            </div>
+          </li>
+        </ol>
+      </nav>
+
+      <!-- اطلاعات مقاله -->
+      <div class="flex items-center justify-between mb-4">
+        <span class="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded">{{ blogpost.get_status_display }}</span>
+        <span class="text-sm text-gray-500">{{ blogpost.publish_date|date:"Y/m/d" }}</span>
+      </div>
+
+      <h1 class="text-3xl font-extrabold text-gray-900 sm:text-4xl mb-4">{{ blogpost.title }}</h1>
+
+      <div class="flex items-center mb-6">
+        <div class="flex-shrink-0">
+          <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm font-medium text-gray-900">{{ blogpost.author.get_full_name }}</p>
+          <div class="flex items-center text-sm text-gray-500">
+            <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            {{ blogpost.view_count }} بازدید
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- تصویر شاخص -->
+    {% if blogpost.image %}
+    <div class="mb-10 rounded-xl overflow-hidden shadow-lg">
+      <img src="{{ blogpost.image.url }}" alt="{{ blogpost.title }}" class="w-full h-auto object-cover">
+    </div>
+    {% endif %}
+
+    <!-- محتوای مقاله -->
+    <article class="prose prose-lg max-w-none prose-headings:font-bold prose-img:rounded-lg prose-img:shadow-md prose-blockquote:border-indigo-500 prose-blockquote:bg-gray-50 prose-blockquote:px-6 prose-blockquote:py-3 prose-table:border prose-table:border-gray-200 prose-th:bg-gray-100 prose-th:p-3 prose-td:p-3">
+      {{ blogpost.content|safe }}
+    </article>
+
+    <!-- محصولات مرتبط -->
+    {% if blogpost.related_products.exists %}
+    <div class="mt-16">
+      <h3 class="text-2xl font-bold text-gray-900 mb-6 border-b pb-2">لپتاپ‌های مرتبط</h3>
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {% for product in blogpost.related_products.all %}
+        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-300">
+          <a href="{{ product.get_absolute_url }}" class="block">
+            <div class="h-48 bg-gray-100 flex items-center justify-center p-4">
+              <img src="{{ product.image.url }}" alt="{{ product.name }}" class="h-full object-contain">
+            </div>
+            <div class="p-4">
+              <h4 class="font-semibold text-lg text-gray-900 mb-2">{{ product.name }}</h4>
+              <div class="flex justify-between items-center">
+                <span class="text-indigo-600 font-bold">{{ product.price|floatformat:"0" }} تومان</span>
+                {% if product.discount %}
+                <span class="text-sm bg-red-100 text-red-800 px-2 py-1 rounded">{{ product.discount }}% تخفیف</span>
+                {% endif %}
+              </div>
+            </div>
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- دکمه بازگشت -->
+    <div class="mt-8 text-center">
+      <a href="{% url 'weblog:view_weblog' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        بازگشت به وبلاگ
+      </a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+  <div class="sm:mx-auto sm:w-full sm:max-w-md">
+    <!-- لوگو -->
+    <div class="flex justify-center mb-6">
+      <div class="w-24 h-24 bg-gradient-to-br from-emerald-400 to-green-500 rounded-3xl shadow-2xl shadow-emerald-500/30 flex items-center justify-center transform hover:scale-105 transition-transform duration-300">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-14 w-14 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+    </div>
+
+    <h2 class="mt-6 text-center text-4xl font-extrabold text-emerald-800 tracking-tight">
+      تایید شماره تلفن
+    </h2>
+    <p class="mt-3 text-center text-base text-gray-600">
+      کد تایید به شماره {{ request.session.phone_number }} ارسال شد
+    </p>
+  </div>
+
+  <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="bg-white py-10 px-6 shadow-2xl shadow-emerald-500/10 sm:rounded-2xl sm:px-12 border border-emerald-100">
+      <form class="space-y-6" method="post">
+        {% csrf_token %}
+
+        <!-- تایمر -->
+        <div class="text-center bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl py-6 px-4 border border-emerald-200">
+          <div id="countdown" class="text-emerald-600 font-bold text-3xl mb-2">02:00</div>
+          <p class="text-gray-600 text-sm flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            زمان باقیمانده تا انقضای کد
+          </p>
+        </div>
+
+        <div class="space-y-3">
+          <label for="otp_code" class="block text-sm font-semibold text-gray-700 text-right">
+            کد تایید
+          </label>
+          <div class="relative">
+            <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+              </svg>
+            </div>
+            <input id="otp_code"
+                   name="otp_code"
+                   type="text"
+                   required
+                   maxlength="5"
+                   class="w-full px-4 py-4 pr-12 bg-gray-50 border-2 border-gray-200 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-center text-2xl font-bold tracking-widest transition-all duration-200 hover:border-emerald-300"
+                   placeholder="کد ۵ رقمی"
+                   dir="ltr">
+          </div>
+        </div>
+
+        <div class="pt-2">
+          <button type="submit" class="w-full flex hover:cursor-pointer items-center cursor-pointer justify-center gap-2 py-4 px-6 border border-transparent rounded-xl shadow-lg text-base font-semibold text-white bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 focus:outline-none focus:ring-4 focus:ring-emerald-300 transform hover:scale-[1.02] transition-all duration-300">
+            <span>تایید کد</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+      </form>
+
+      {% if messages %}
+        <div class="mt-6 space-y-3">
+          {% for message in messages %}
+            <div class="p-4 rounded-xl flex items-start gap-3 {% if message.tags == 'error' %}bg-red-50 border-2 border-red-200{% else %}bg-emerald-50 border-2 border-emerald-200{% endif %}">
+              {% if message.tags == 'error' %}
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p class="text-sm text-red-700 text-right flex-1">{{ message }}</p>
+              {% else %}
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p class="text-sm text-emerald-700 text-right flex-1">{{ message }}</p>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- دکمه ارسال مجدد -->
+      <div class="mt-8 pt-6 border-t border-gray-200 text-center">
+        <p class="text-sm text-gray-600">
+          کد را دریافت نکردید؟
+          <a href="{% url 'accounts:user_verification' %}"  type="button" class="font-semibold text-emerald-600 hover:text-emerald-700 underline decoration-2 underline-offset-2 mr-1">
+            ارسال مجدد
+          </a>
+        </p>
+      </div>
+    </div>
+
+    <!-- راهنما -->
+    <p class="mt-6 text-center text-sm text-gray-600">
+      کد تایید ۵ رقمی را که به شماره شما ارسال شده وارد کنید
+    </p>
+  </div>
+</div>
+
+<script>
+  // تایمر ۲ دقیقه‌ای
+  document.addEventListener('DOMContentLoaded', function() {
+    let timeLeft = 120; // 2 دقیقه = 120 ثانیه
+    const countdownElement = document.getElementById('countdown');
+
+    const timer = setInterval(function() {
+      const minutes = Math.floor(timeLeft / 60);
+      const seconds = timeLeft % 60;
+
+      countdownElement.textContent =
+        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        countdownElement.textContent = "00:00";
+        countdownElement.classList.remove('text-emerald-600');
+        countdownElement.classList.add('text-gray-500');
+      } else {
+        timeLeft--;
+      }
+    }, 1000);
+  });
+</script>
+{% endblock %}

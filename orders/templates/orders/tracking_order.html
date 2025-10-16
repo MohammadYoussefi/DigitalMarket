@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-screen bg-gray-50 px-4 [@media(max-width:624px)]:pt-[90px] pt-16">
+    <div class="w-full max-w-3xl bg-white rounded-2xl shadow-xl p-6 sm:p-8">
+
+        <!-- عنوان صفحه -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">پیگیری وضعیت سفارش</h1>
+            <p class="text-sm text-gray-500 mt-2">کد پیگیری خود را وارد کنید تا وضعیت سفارش خود را مشاهده کنید.</p>
+        </div>
+
+        <!-- فرم -->
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            <div>
+                <label for="tracking_code" class="block text-sm font-medium text-gray-700 mb-1">
+                    شماره پیگیری سفارش
+                </label>
+                <input type="text" name="tracking_code" id="tracking_code"
+                       placeholder="مثال: 12345"
+                       class="w-full rounded-lg border border-gray-300 bg-gray-50 text-gray-900 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400">
+            </div>
+
+            <div class="flex justify-center">
+                <button type="submit"
+                        class="bg-green-700 text-white text-sm font-medium cursor-pointer py-2 px-6 rounded-lg shadow hover:bg-green-900 transition duration-200">
+                    پیگیری
+                </button>
+            </div>
+        </form>
+
+        <!-- پیام خطا -->
+        {% if error %}
+        <div class="mt-6 bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-lg text-sm">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <!-- نتیجه پیگیری -->
+        {% if order %}
+        <div class="mt-8 bg-gray-50 border border-gray-200 rounded-lg p-6 shadow-sm">
+            <h2 class="text-xl font-bold text-blue-600 mb-4">جزئیات سفارش</h2>
+
+            <p class="text-gray-700 mb-2"><span class="font-medium text-gray-900">شماره سفارش:</span> {{ order.id }}</p>
+            <p class="text-gray-700 mb-2"><span class="font-medium text-gray-900">کد پیگیری:</span> {{ order.tracking_id }}</p>
+
+            <p class="text-gray-700 mb-2">
+                <span class="font-medium text-gray-900">کد پستی:</span>
+                {% if order.tracking_post_code %}
+                {{ order.tracking_post_code }}
+                {% else %}
+                <span class="text-yellow-500 font-semibold">در حال پردازش...</span>
+                {% endif %}
+            </p>
+
+            <p class="text-gray-700">
+                <span class="font-medium text-gray-900">وضعیت تحویل:</span>
+                {{ order.delivery|yesno:"تحویل داده شده,در حال پردازش" }}
+            </p>
+        </div>
+
+        <!-- محصولات سفارش -->
+        <div class="mt-6 bg-gray-50 border border-gray-200 rounded-lg p-6 shadow-sm">
+            <h2 class="text-xl font-bold text-blue-600 mb-4">محصولات سفارش</h2>
+            {% if order.order_items.all %}
+            <ul class="space-y-4">
+                {% for item in order.order_items.all %}
+                <li class="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                    <div>
+                        <p class="font-medium text-gray-900">{{ item.product.name }}</p>
+                        <p class="text-sm text-gray-500">تعداد: {{ item.quantity }}</p>
+                    </div>
+                    <span class="text-sm text-blue-500 font-semibold">
+                        {{ item.product.price |floatformat:0|intcomma }} تومان
+                    </span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-gray-500">هیچ محصولی در این سفارش ثبت نشده است.</p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

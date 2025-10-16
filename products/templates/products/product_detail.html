@@ -1,0 +1,462 @@
+{% load static %}
+{% load humanize %}
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.name }} | فروشگاه لپ‌تاپ</title>
+    <meta name="description" content="{{ product.description|truncatewords:20 }}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap');
+
+        * {
+            font-family: 'Vazirmatn', sans-serif;
+        }
+
+        :root {
+            --primary: #ef394e;
+            --primary-dark: #d32f42;
+            --success: #00a049;
+            --border: #e0e0e6;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-900: #111827;
+        }
+
+        body {
+            background-color: #f5f5f5;
+        }
+
+        .main-image {
+            transition: transform 0.3s ease;
+        }
+
+        .main-image:hover {
+            transform: scale(1.02);
+        }
+
+        .thumb {
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .thumb:hover {
+            border-color: var(--primary);
+        }
+
+        .thumb.active {
+            border-color: var(--primary);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(239, 57, 78, 0.3);
+        }
+
+        .price-box {
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+        }
+
+        .spec-row:hover {
+            background-color: var(--gray-50);
+        }
+
+        .star {
+            color: #fbbf24;
+        }
+
+        .star-empty {
+            color: #d1d5db;
+        }
+
+        .badge-new {
+            background-color: var(--success);
+        }
+
+        .quantity-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quantity-btn:hover {
+            background-color: var(--gray-50);
+            border-color: var(--primary);
+        }
+
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+            fill: var(--gray-600);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 py-14">
+    {% include 'inc/navbar.html' %}
+    <!-- Container -->
+    <div class="max-w-7xl mx-auto px-4 py-6">
+
+        <!-- Breadcrumb -->
+        <div class="mb-4 text-sm text-gray-600">
+            <a href="{% url 'home:home' %}" class="hover:text-gray-900">فروشگه لپتاپ</a>
+            <span class="mx-2">/</span>
+            <a href="{% url 'products:products' %}" class="hover:text-gray-900">کالای دیجیتال</a>
+            <span class="mx-2">/</span>
+            <a href="{% url 'products:products' %}" class="hover:text-gray-900">لپ تاپ</a>
+            <span class="mx-2">/</span>
+            <span class="text-gray-900">{{ product.brand.name }}</span>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+
+            <!-- Right Column - Images -->
+            <div class="lg:col-span-5 order-1">
+                <div class="bg-white rounded-2xl p-4 sticky top-4">
+                    {% if product.images.all %}
+                        <!-- Main Image -->
+                        <div class="mb-4 rounded-xl overflow-hidden bg-white">
+                            <img id="mainImage" src="{{ product.images.first.image.url }}" alt="{{ product.images.first.alt_text }}" class="main-image w-full h-auto object-contain">
+                        </div>
+
+                        <!-- Thumbnails -->
+                        <div class="flex gap-2 overflow-x-auto pb-2">
+                            {% for image in product.images.all %}
+                            <img src="{{ image.image.url }}" alt="{{ image.alt_text }}" class="thumb {% if forloop.first %}active{% endif %} w-20 h-20 rounded-lg object-cover" onclick="changeImage(this, '{{ image.image.url }}')">
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="mb-4 rounded-xl overflow-hidden bg-gray-100 aspect-square flex items-center justify-center">
+                            <p class="text-gray-400">تصویری موجود نیست</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Middle Column - Product Info -->
+            <div class="lg:col-span-4 order-2 lg:order-2">
+                <div class="bg-white rounded-2xl p-6">
+                    <!-- Brand & Badge -->
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-sm text-gray-600">برند: {{ product.brand.name }}</span>
+                        {% if product.condition == "new" %}
+                            <span class="badge-new text-white text-xs px-3 py-1 rounded-full">نو</span>
+                        {% else %}
+                            <span class="bg-yellow-500 text-white text-xs px-3 py-1 rounded-full">{{ product.get_condition_display }}</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Title -->
+                    <h1 class="text-2xl font-bold text-gray-900 mb-4">
+                        {{ product.name }}
+                    </h1>
+
+                    <!-- Rating -->
+                    <!-- بخش نمایش امتیاز (برای همه) -->
+                    <div class="flex items-center gap-2 mb-6 pb-6 border-b">
+                        <div class="flex gap-1">
+                            {% for _ in product.get_rating_stars.full %}
+                            <span class="star text-yellow-400">★</span>
+                            {% endfor %}
+
+                            {% if product.get_rating_stars.half %}
+                            <span class="star text-yellow-400">★</span>
+                            {% endif %}
+
+                            {% for _ in product.get_rating_stars.empty %}
+                            <span class="star text-gray-300">★</span>
+                            {% endfor %}
+                        </div>
+                        <span class="text-sm text-gray-600">{{ product.get_rating_stars.value|floatformat:1 }}</span>
+                        <span class="text-sm text-gray-500">({{ product.get_rating_stars.count }} نظر)</span>
+                    </div>
+
+                    <!-- Features -->
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-start gap-2 text-sm">
+                            <svg class="feature-icon mt-0.5" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                            </svg>
+                            <span class="text-gray-700">پردازنده {{ product.product_specs.processor_brand }} {{ product.product_specs.processor_model }} {{ product.product_specs.processor_generation }}</span>
+                        </div>
+                        <div class="flex items-start gap-2 text-sm">
+                            <svg class="feature-icon mt-0.5" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                            </svg>
+                            <span class="text-gray-700">کارت گرافیک {{ product.product_specs.gpu_brand }} {{ product.product_specs.gpu_model }} با {{ product.product_specs.gpu_memory }} حافظه</span>
+                        </div>
+                        <div class="flex items-start gap-2 text-sm">
+                            <svg class="feature-icon mt-0.5" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                            </svg>
+                            <span class="text-gray-700">رم {{ product.product_specs.ram }} - حافظه {{ product.product_specs.storage }}</span>
+                        </div>
+                        <div class="flex items-start gap-2 text-sm">
+                            <svg class="feature-icon mt-0.5" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                            </svg>
+                            <span class="text-gray-700">صفحه‌نمایش {{ product.product_specs.display }}</span>
+                        </div>
+                        {% if product.product_specs.keyboard_backlight %}
+                        <div class="flex items-start gap-2 text-sm">
+                            <svg class="feature-icon mt-0.5" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                            </svg>
+                            <span class="text-gray-700">کیبورد با نور پس‌زمینه</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Description -->
+                    <div class="bg-gray-50 rounded-xl p-4 mb-6">
+                        <h3 class="font-semibold text-gray-900 mb-2">معرفی محصول</h3>
+                        <p class="text-sm text-gray-700 leading-relaxed">
+                            {{ product.description }}
+                        </p>
+                    </div>
+
+                    <!-- Product Info -->
+                    <div class="space-y-2 text-sm text-gray-600">
+                        <div class="flex justify-between">
+                            <span>تاریخ عرضه:</span>
+                            <span class="text-gray-900">{{ product.release_date }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>وضعیت موجودی:</span>
+                            {% if product.available %}
+                                <span class="text-green-600 font-semibold flex items-center gap-1">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                                    </svg>
+                                    موجود در فروشگاه
+                                </span>
+                            {% else %}
+                                <span class="text-red-600 font-semibold">ناموجود</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Rating Section -->
+                {% if user.is_authenticated %}
+                <div class="bg-white rounded-2xl p-6 mt-4">
+                    <h3 class="font-semibold text-gray-900 mb-3">به این محصول امتیاز دهید</h3>
+                    <form method="post" action="{% url 'products:rate_product' product.id %}" class="flex gap-2" id="userRating">
+                        {% csrf_token %}
+                        {% for i in "12345" %}
+                        <button type="submit" name="rating" value="{{ i }}" class="star-btn text-3xl star-empty hover:text-yellow-400 transition-colors">★</button>
+                        {% endfor %}
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Left Column - Purchase Box -->
+            <div class="lg:col-span-3 order-3">
+                <div class="bg-white rounded-2xl p-6 sticky top-4">
+                    <!-- Seller Info -->
+                    <div class="mb-4 pb-4 border-b">
+                        <div class="flex items-center gap-2 text-sm">
+                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                            </svg>
+                            <span class="text-gray-700">فروشنده:</span>
+                            <span class="font-semibold text-gray-900">{{ product.brand.name }}</span>
+                        </div>
+                        <div class="flex items-center gap-1 mt-2 text-sm text-gray-600">
+                            <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                            </svg>
+                            <span>گارانتی اصالت کالا</span>
+                        </div>
+                    </div>
+
+                    <!-- Price -->
+                    <div class="price-box rounded-xl p-4 mb-4">
+                        <div class="text-3xl font-bold text-gray-900 mb-1">
+                            {{ product.price|intcomma }} تومان
+                        </div>
+                    </div>
+
+                    <!-- Quantity & Add to Cart Form -->
+                    <form method="post" action="{% url 'orders:add_to_cart' product.id %}">
+                        {% csrf_token %}
+
+                        <!-- Quantity -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">تعداد:</label>
+                            <div class="flex items-center gap-2">
+                                <button type="button" class="quantity-btn rounded-lg" onclick="decreaseQuantity()">−</button>
+                                <input type="number" name="quantity" id="quantity" value="1" min="1" class="w-20 h-10 text-center border rounded-lg" readonly>
+                                <button type="button" class="quantity-btn rounded-lg" onclick="increaseQuantity()">+</button>
+                            </div>
+                        </div>
+
+                        <!-- Add to Cart Button -->
+                        <button type="submit" class="btn-primary w-full text-white font-semibold py-4 rounded-xl mb-3 flex items-center justify-center gap-2">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                            افزودن به سبد خرید
+                        </button>
+                    </form>
+
+                    <!-- Services -->
+                    <div class="space-y-3 pt-4 border-t">
+                        <div class="flex items-center gap-2 text-sm text-gray-600">
+                            <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                            </svg>
+                            <span>ارسال سریع</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm text-gray-600">
+                            <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                            </svg>
+                            <span>۷ روز ضمانت بازگشت</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm text-gray-600">
+                            <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                            </svg>
+                            <span>امکان خرید حضوری</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Specs -->
+        <div class="bg-white rounded-2xl p-6 mt-4">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">مشخصات فنی</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8">
+                <!-- Column 1 -->
+                <div class="space-y-0">
+                    <div class="spec-row flex justify-between py-3 border-b transition-colors">
+                        <span class="text-sm text-gray-600">برند پردازنده</span>
+                        <span class="text-sm font-medium text-gray-900">{{ product.product_specs.processor_brand }}</span>
+                    </div>
+                    <div class="spec-row flex justify-between py-3 border-b transition-colors">
+                        <span class="text-sm text-gray-600">مدل پردازنده</span>
+                        <span class="text-sm font-medium text-gray-900">{{ product.product_specs.processor_model }}</span>
+                    </div>
+                    <div class="spec-row flex justify-between py-3 border-b transition-colors">
+                        <span class="text-sm text-gray-600">نسل پردازنده</span>
+                        <span class="text-sm font-medium text-gray-900">{{ product.product_specs.processor_generation }}</span>
+                    </div>
+                    <div class="spec-row flex justify-between py-3 border-b transition-colors">
+                        <span class="text-sm text-gray-600">رم</span>
+                        <span class="text-sm font-medium text-gray-900">{{ product.product_specs.ram }}</span>
+                    </div>
+                    <div class="spec-row flex justify-between py-3 border-b transition-colors">
+                        <span class="text-sm text-gray-600">حافظه داخلی</span>
+                        <span class="text-sm font-medium text-gray-900">{{ product.product_specs.storage }}</span>
+                    </div>
+                    <div class="spec-row flex justify-between py-3 border-b transition-colors">
+                        <span class="text-sm text-gray-600">برند کارت گرافیک</span>
+                        <span class="text-sm font-medium text-gray-900">{{ product.product_specs.gpu_brand }}</span>
+                    </div>
+                    <div class="spec-row flex justify-between py-3 border-b transition-colors">
+                        <span class="text-sm text-gray-600">مدل کارت گرافیک</span>
+                        <span class="text-sm font-medium text-gray-900">{{ product.product_specs.gpu_model }}</span>
+                    </div>
+                    <div class="spec-row flex justify-between py-3 border-b transition-colors">
+                        <span class="text-sm text-gray-600">حافظه گرافیکی</span>
+                        <span class="text-sm font-medium text-gray-900">{{ product.product_specs.gpu_memory }}</span>
+                    </div>
+                    <div class="spec-row flex justify-between py-3 border-b transition-colors">
+                        <span class="text-sm text-gray-600">صفحه‌نمایش</span>
+                        <span class="text-sm font-medium text-gray-900">{{ product.product_specs.display }}</span>
+                    </div>
+                    <div class="spec-row flex justify-between py-3 border-b md:border-b-0 transition-colors">
+                        <span class="text-sm text-gray-600">باتری</span>
+                        <span class="text-sm font-medium text-gray-900">{{ product.product_specs.battery }}</span>
+                    </div>
+                </div>
+
+                <!-- Column 2 -->
+                <div class="space-y-0">
+                    <div class="spec-row flex justify-between py-3 border-b transition-colors">
+                        <span class="text-sm text-gray-600">سیستم عامل</span>
+                        <span class="text-sm font-medium text-gray-900">{{ product.product_specs.os }}</span>
+                    </div>
+                    <div class="spec-row flex justify-between py-3 border-b transition-colors">
+                        <span class="text-sm text-gray-600">نور پس‌زمینه کیبورد</span>
+                        <span class="text-sm font-medium text-gray-900">{% if product.product_specs.keyboard_backlight %}دارد{% else %}ندارد{% endif %}</span>
+                    </div>
+                    <div class="spec-row flex justify-between py-3 border-b transition-colors">
+                        <span class="text-sm text-gray-600">وزن</span>
+                        <span class="text-sm font-medium text-gray-900">{{ product.product_specs.weight }}</span>
+                    </div>
+                    <div class="spec-row flex justify-between py-3 border-b transition-colors">
+                        <span class="text-sm text-gray-600">ابعاد</span>
+                        <span class="text-sm font-medium text-gray-900">{{ product.product_specs.dimensions }}</span>
+                    </div>
+                    <div class="spec-row flex justify-between py-3 border-b transition-colors">
+                        <span class="text-sm text-gray-600">Wi-Fi</span>
+                        <span class="text-sm font-medium text-gray-900">{{ product.product_specs.wifi }}</span>
+                    </div>
+                    <div class="spec-row flex justify-between py-3 border-b transition-colors">
+                        <span class="text-sm text-gray-600">Bluetooth</span>
+                        <span class="text-sm font-medium text-gray-900">{{ product.product_specs.bluetooth }}</span>
+                    </div>
+                    <div class="spec-row flex justify-between py-3 border-b transition-colors">
+                        <span class="text-sm text-gray-600">وبکم</span>
+                        <span class="text-sm font-medium text-gray-900">{{ product.product_specs.webcam }}</span>
+                    </div>
+                    <div class="spec-row flex justify-between py-3 border-b transition-colors">
+                        <span class="text-sm text-gray-600">اسپیکر</span>
+                        <span class="text-sm font-medium text-gray-900">{{ product.product_specs.speakers }}</span>
+                    </div>
+                    <div class="spec-row flex justify-between py-3 transition-colors">
+                        <span class="text-sm text-gray-600">پورت‌ها</span>
+                        <span class="text-sm font-medium text-gray-900">{{ product.product_specs.ports }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Change main image
+        function changeImage(thumb, src) {
+            document.getElementById('mainImage').src = src;
+            document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+            thumb.classList.add('active');
+        }
+
+        // Quantity controls
+        function increaseQuantity() {
+            const input = document.getElementById('quantity');
+            input.value = parseInt(input.value) + 1;
+        }
+
+        function decreaseQuantity() {
+            const input = document.getElementById('quantity');
+            if (parseInt(input.value) > 1) {
+                input.value = parseInt(input.value) - 1;
+            }
+        }
+    </script>
+</body>

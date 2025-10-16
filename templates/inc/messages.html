@@ -1,0 +1,102 @@
+{% if messages %}
+<div class="messages-container">
+    {% for message in messages %}
+    <div class="message {{ message.tags }}">
+        <span class="message-text">{{ message }}</span>
+        <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
+    </div>
+    {% endfor %}
+</div>
+
+{% endif %}
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+  body {
+    font-family: 'Vazirmatn', sans-serif;
+  }
+
+.messages-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    width: 350px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+}
+
+.message {
+    padding: 15px 20px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    font-family: 'Vazirmatn', sans-serif;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+    animation: slideIn 0.5s ease-out, fadeOut 4s ease-in forwards, neonGlow 1.5s infinite alternate;
+    position: relative;
+    overflow: hidden;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
+}
+
+.message-text {
+    flex-grow: 1;
+    text-align: center;
+}
+
+.message::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.7);
+    animation: progress 3.5s linear forwards;
+}
+
+.message.success { background: linear-gradient(135deg, #00ff00, #009900); box-shadow: 0 0 20px #00ff00; }
+.message.error { background: linear-gradient(135deg, #ff0000, #990000); box-shadow: 0 0 20px #ff0000; }
+.message.warning { background: linear-gradient(135deg, #ffcc00, #ff9900); box-shadow: 0 0 20px #ffcc00; }
+.message.info { background: linear-gradient(135deg, #00ccff, #0066ff); box-shadow: 0 0 20px #00ccff; }
+
+.close-btn {
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 18px;
+    transition: transform 0.2s;
+    margin-left: 10px;
+}
+
+.close-btn:hover {
+    transform: scale(1.2);
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes progress {
+    from { width: 100%; }
+    to { width: 0; }
+}
+
+@keyframes neonGlow {
+    from { box-shadow: 0 0 10px rgba(0, 255, 255, 0.8); }
+    to { box-shadow: 0 0 25px rgba(0, 255, 255, 1); }
+}
+</style>
