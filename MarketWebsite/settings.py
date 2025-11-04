@@ -143,8 +143,8 @@ STORAGES = {
     "default": {
         "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
         "OPTIONS": {
-            'access_key': '8fa78b33-e770-4bf1-b473-e8442bd6f0ab',
-            'secret_key': '7716eaa7b7332cf8aa12203286a5f8020a72acc2131765b5fa402feb888f50b9',
+            'access_key': 'your access key',
+            'secret_key': 'your secret arvan cloude key',
             "endpoint_url": "https://s3.ir-tbz-sh1.arvanstorage.ir",
             'bucket_name': 'marketwebsite',
             "file_overwrite": False,
